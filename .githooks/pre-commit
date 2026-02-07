@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Pre-commit hook for Atelier: Validate Claude Code plugins before commit
+# This prevents committing invalid plugins that would fail CI
+
+set -e
+
+echo ""
+echo "🔍 Running plugin validation checks..."
+echo ""
+
+EXIT_CODE=0
+PLUGINS_VALIDATED=0
+PLUGINS_FAILED=0
+
+# Check if claude CLI is installed
+if ! command -v claude &> /dev/null; then
+    echo "❌ ERROR: 'claude' command not found"
+    echo ""
+    echo "Please install Claude Code:"
+    echo "  npm install -g @anthropic-ai/claude-code"
+    echo ""
+    exit 1
+fi
+
+# Validate marketplace manifest if it exists and is staged
+if [ -f ".claude-plugin/marketplace.json" ]; then
+    if git diff --cached --name-only | grep -q "^.claude-plugin/marketplace.json$"; then
+        echo "📦 Validating marketplace manifest..."
+        if claude plugin validate .; then
+            echo "✅ Marketplace manifest: PASSED"
+        else
+            echo "❌ Marketplace manifest: FAILED"
+            EXIT_CODE=1
+        fi
+        echo ""
+    fi
+fi
+
+# Find all staged plugin files and extract unique plugin directories
+STAGED_PLUGINS=$(git diff --cached --name-only | grep "^plugins/" | cut -d'/' -f1-2 | sort -u)
+
+if [ -n "$STAGED_PLUGINS" ]; then
+    while IFS= read -r plugin_dir; do
+        if [ -d "$plugin_dir" ]; then
+            plugin_name=$(basename "$plugin_dir")
+            PLUGINS_VALIDATED=$((PLUGINS_VALIDATED + 1))
+
+            echo "🔧 Validating plugin: $plugin_name"
+
+            if claude plugin validate "$plugin_dir" 2>&1; then
+                echo "✅ $plugin_name: PASSED"
+            else
+                echo "❌ $plugin_name: FAILED"
+                PLUGINS_FAILED=$((PLUGINS_FAILED + 1))
+                EXIT_CODE=1
+            fi
+            echo ""
+        fi
+    done <<< "$STAGED_PLUGINS"
+else
+    # No staged plugin changes
+    if [ -d "plugins" ] && [ "$(ls -A plugins 2>/dev/null)" ]; then
+        echo "ℹ️  No plugin changes staged for commit"
+    else
+        echo "ℹ️  No plugins to validate"
+    fi
+    echo ""
+fi
+
+# Summary
+if [ $EXIT_CODE -eq 0 ]; then
+    if [ $PLUGINS_VALIDATED -gt 0 ]; then
+        echo "=========================================="
+        echo "✅ All plugins validated successfully!"
+        echo "   Validated: $PLUGINS_VALIDATED plugin(s)"
+        echo "=========================================="
+        echo ""
+    fi
+else
+    echo "=========================================="
+    echo "❌ Plugin validation failed!"
+    echo "   Validated: $PLUGINS_VALIDATED plugin(s)"
+    echo "   Failed: $PLUGINS_FAILED plugin(s)"
+    echo "=========================================="
+    echo ""
+    echo "Fix the validation errors above and try again."
+    echo "Run 'claude plugin validate <plugin-path>' to debug."
+    echo ""
+    exit 1
+fi
+
+exit 0

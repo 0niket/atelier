@@ -6,6 +6,18 @@
 
 Atelier is a metawork laboratory for designing and prototyping Claude Code plugins. Ideas get shaped here before they ship as distributable plugins.
 
+## Getting Started
+
+### First Time Setup
+
+After cloning this repository, install the git hooks:
+
+```bash
+./setup-hooks.sh
+```
+
+This enables automatic plugin validation before commits.
+
 ## Claude Code Plugin Reference
 
 ### Plugin Structure

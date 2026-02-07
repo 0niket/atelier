@@ -1,0 +1,88 @@
+name: Validate Plugins
+
+on:
+  push:
+    paths:
+      - 'plugins/**'
+      - '.claude-plugin/marketplace.json'
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - '.claude-plugin/marketplace.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Claude Code
+        run: |
+          npm install -g @anthropic-ai/claude-code
+
+      - name: Validate marketplace manifest (if exists)
+        if: hashFiles('.claude-plugin/marketplace.json') != ''
+        run: |
+          echo "Validating marketplace manifest..."
+          claude plugin validate .
+
+      - name: Validate all plugins
+        run: |
+          EXIT_CODE=0
+
+          if [ -d "plugins" ]; then
+            for plugin_dir in plugins/*/; do
+              if [ -d "$plugin_dir" ]; then
+                plugin_name=$(basename "$plugin_dir")
+                echo "----------------------------------------"
+                echo "Validating plugin: $plugin_name"
+                echo "----------------------------------------"
+
+                if claude plugin validate "$plugin_dir"; then
+                  echo "✅ $plugin_name: PASSED"
+                else
+                  echo "❌ $plugin_name: FAILED"
+                  EXIT_CODE=1
+                fi
+                echo ""
+              fi
+            done
+          else
+            echo "No plugins directory found. Skipping plugin validation."
+          fi
+
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "=========================================="
+            echo "❌ Plugin validation failed!"
+            echo "=========================================="
+            echo ""
+            echo "Please fix the validation errors above."
+            echo "Run 'claude plugin validate <plugin-path>' locally to debug."
+            exit 1
+          fi
+
+          echo ""
+          echo "=========================================="
+          echo "✅ All plugins validated successfully!"
+          echo "=========================================="
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Plugin Validation Results" >> $GITHUB_STEP_SUMMARY
+
+          if [ -d "plugins" ]; then
+            plugin_count=$(find plugins -maxdepth 1 -type d | tail -n +2 | wc -l | tr -d ' ')
+            echo "- **Plugins validated:** $plugin_count" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Plugins validated:** 0" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -f ".claude-plugin/marketplace.json" ]; then
+            echo "- **Marketplace manifest:** ✅ Present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Marketplace manifest:** ⚠️  Not found" >> $GITHUB_STEP_SUMMARY
+          fi
