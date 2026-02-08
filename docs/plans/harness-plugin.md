@@ -882,7 +882,7 @@ Date: 2026-02-08
 
 ---
 
-#### `/harness:fix`
+#### `/harness:bugfix`
 **Job**: Fix a bug with specification and plan
 
 **Workflow** (Specification-Driven Bug Fix):
@@ -916,7 +916,7 @@ Date: 2026-02-08
 
 **Example**:
 ```
-/harness:fix Users can't save preferences on mobile
+/harness:bugfix Users can't save preferences on mobile
 
 # Creates spec: .harness/specs/bug-042/spec.md
 #   Current: Preferences lost when app backgrounds
@@ -1012,11 +1012,29 @@ Agent: "✅ Verified: AC-2 passed - total updated correctly"
   - Sign-off status
 - **Blocks PR if QA fails**
 
+**Phase 5: PR Creation** (Interactive)
+- Displays QA summary and sign-off status
+- **Asks user**: "QA complete. Create Pull Request? [Y/n]"
+- If Yes:
+  - Creates PR from feature branch → main
+  - PR title: "feat: <feature-name> (<ticket-id>)"
+  - PR body includes:
+    - Ticket link
+    - User stories implemented (P1, P2, P3)
+    - Domain model summary
+    - Test coverage metrics
+    - QA evidence (screenshots, test results)
+    - Coherence validation status
+  - Links to spec, plan, tasks, QA report
+  - Displays PR URL
+- If No: Exits, allows user to create PR manually later
+
 **Outputs**:
 - QA report with evidence
 - Test coverage report
 - Screenshots/recordings (for manual QA)
-- Sign-off (ready/not ready for PR)
+- QA sign-off status
+- Pull Request (if user confirms)
 
 **Example**:
 ```
@@ -1156,56 +1174,6 @@ Agent: "✅ Verified: AC-2 passed - total updated correctly"
 
 ---
 
-#### `/harness:review`
-**Job**: Review code against spec, plan, and constitution
-
-**Workflow** (Coherence-Focused Review):
-
-**Phase 1: Load Context**
-- Finds related specification (if exists)
-- Loads implementation plan (if exists)
-- Reads constitution rules
-
-**Phase 2: Coherence Validation**
-- **Spec ↔ Code**: Implementation matches spec requirements?
-- **Plan ↔ Code**: All plan tasks implemented correctly?
-- **Tests ↔ Spec**: Acceptance criteria all tested?
-- **Constitution**: TDD followed? Domain model correct?
-
-**Phase 3: Quality Checks**
-- Code smells detected
-- Security vulnerabilities
-- Performance concerns
-- Test coverage adequate
-
-**Phase 4: Feedback**
-- Flags coherence violations (highest priority)
-- Suggests improvements
-- References constitution rules
-
-**Example**:
-```
-/harness:review PR #123
-
-# Loads:
-#   Spec: .harness/specs/001-shopping-cart/spec.md
-#   Plan: .harness/specs/001-shopping-cart/plan.md
-#
-# Coherence Checks:
-#   ✅ Plan Task 1 (Cart aggregate) implemented
-#   ✅ Plan Task 2 (Money VO) implemented
-#   ❌ VIOLATION: Plan Task 3 (CartRepository) missing!
-#   ❌ VIOLATION: Spec AC-3 "Remove item" not tested
-#   ⚠️  TDD violation: commit shows code before tests
-#
-# Quality Checks:
-#   ⚠️  Feature Envy in CartService
-#   ✅ Domain model correctly applied
-#
-# Feedback prioritizes coherence violations
-```
-
----
 
 #### `/harness:debug`
 **Job**: Debug production issues
@@ -1227,7 +1195,7 @@ Agent: "✅ Verified: AC-2 passed - total updated correctly"
 ### 3. Methodology Engines (Auto-Applied by Constitution)
 
 #### Specification Engine (BDD-Inspired)
-**Triggered By**: `/harness:specify`, `/harness:fix` (for bugs), `/harness:improve` (for refactoring)
+**Triggered By**: `/harness:specify`, `/harness:bugfix` (for bugs), `/harness:improve` (for refactoring)
 
 **Applies**:
 - User story format with scenarios
@@ -1266,7 +1234,7 @@ Agent: "✅ Verified: AC-2 passed - total updated correctly"
 ---
 
 #### TDD Engine
-**Triggered By**: `/harness:implement`, `/harness:fix`
+**Triggered By**: `/harness:implement`, `/harness:bugfix`
 
 **Applies**:
 - Red-Green-Refactor cycle
@@ -1401,7 +1369,7 @@ Agent: "✅ Verified: AC-2 passed - total updated correctly"
 
 #### `investigator`
 **Specialization**: Root cause analysis
-**Invoked By**: `/harness:debug`, `/harness:fix`
+**Invoked By**: `/harness:debug`, `/harness:bugfix`
 **Tools**: Log analysis, git bisect, hypothesis testing
 
 ---
@@ -2038,7 +2006,7 @@ function validateTaskCoherence(taskId, state) {
 
 ### Phase 5: Debugging & Understanding
 **Deliverables**:
-- `/harness:fix` command (with spec/plan)
+- `/harness:bugfix` command (with spec/plan)
 - `/harness:debug` command
 - `/harness:understand` command
 - `/harness:clarify` command
@@ -2434,7 +2402,7 @@ coherence-map.json:
 | `/harness:plan` | Command/Job | Create DDD implementation plan | No | Yes |
 | `/harness:tasks` | Command/Job | Break plan into executable tasks | No | Yes |
 | `/harness:implement` | Command/Job | Execute tasks with TDD | No | Yes |
-| `/harness:fix` | Command/Job | Fix bug with spec/plan | No | Yes |
+| `/harness:bugfix` | Command/Job | Fix bug with spec/plan | No | Yes |
 | `/harness:improve` | Command/Job | Refactor with spec/plan | No | Yes |
 | `/harness:qa` | Command/Job | Quality assurance (auto + manual) | No | Yes |
 | `/harness:review` | Command/Job | Review coherence & create PR | No | Yes |
@@ -2780,7 +2748,7 @@ Ready to merge!
 
 ### Plugin Components
 
-**Commands (13 Job-Focused)**:
+**Commands (12 Job-Focused)**:
 1. `/harness:setup` - Initialize Harness (run once)
 2. `/harness:constitution` - View/edit rules
 3. `/harness:specify` - Create BDD spec (Spec-Kit pattern)
@@ -2788,12 +2756,11 @@ Ready to merge!
 5. `/harness:tasks` - Break down plan into executable tasks (Spec-Kit pattern)
 6. `/harness:implement` - Execute tasks with TDD
 7. `/harness:qa` - Quality assurance (automated + manual HITL)
-8. `/harness:fix` - Fix with spec/plan/tasks
-9. `/harness:improve` - Refactor with spec/plan
-10. `/harness:review` - Review coherence & create PR
-11. `/harness:understand` - Explain (read-only)
-12. `/harness:debug` - Investigate issues
-13. `/harness:clarify` - Refine requirements
+8. `/harness:bugfix` - Fix bugs (spec+plan+tasks) - Fix with spec/plan/tasks
+9. `/harness:improve` - Refactor with spec/plan - Refactor with spec/plan
+10. `/harness:understand` - Explain code (read-only)
+11. `/harness:debug` - Investigate production issues
+12. `/harness:clarify` - Refine vague requirements
 
 **Agents (8 Specialized)**:
 1. `specifier` - BDD specifications
@@ -2860,7 +2827,7 @@ Constitution (Shipped Default)
 │                                            │
 │ Anytime:                                   │
 │ - /harness:improve → Refactor             │
-│ - /harness:fix → Bug Fix (spec+plan+tasks)│
+│ - /harness:bugfix → Bug Fix (spec+plan+tasks)│
 │ - /harness:understand → Learn Code        │
 │ - /harness:debug → Investigate            │
 └───────────────────────────────────────────┘
