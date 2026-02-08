@@ -1,0 +1,18 @@
+{
+  "name": "atelier-plugins",
+  "metadata": {
+    "description": "Metawork laboratory plugins - professional development workflows and patterns"
+  },
+  "owner": {
+    "name": "Atelier"
+  },
+  "plugins": [
+    {
+      "name": "harness",
+      "source": "./plugins/harness",
+      "description": "Complete development workflow with BDD, DDD, TDD, state management, and QA automation",
+      "version": "0.1.0",
+      "keywords": ["workflow", "bdd", "ddd", "tdd", "qa", "state-machine"]
+    }
+  ]
+}

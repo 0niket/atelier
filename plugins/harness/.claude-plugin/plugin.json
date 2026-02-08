@@ -1,0 +1,20 @@
+{
+  "name": "harness",
+  "version": "0.1.0",
+  "description": "Complete development workflow with BDD specifications, DDD planning, TDD implementation, state management, and QA automation",
+  "author": {
+    "name": "Atelier"
+  },
+  "keywords": [
+    "workflow",
+    "bdd",
+    "ddd",
+    "tdd",
+    "refactoring",
+    "qa",
+    "state-machine",
+    "coherence",
+    "ticket-driven"
+  ],
+  "license": "MIT"
+}
