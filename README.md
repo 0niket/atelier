@@ -6,6 +6,28 @@
 
 Atelier is a metawork laboratory for designing and prototyping Claude Code plugins. Ideas get shaped here before they ship as distributable plugins.
 
+## Repository Structure
+
+```
+atelier/
+├── plugins/           # Claude Code plugins under development
+├── docs/             # Documentation and design plans
+│   └── plans/        # Detailed planning documents
+├── tmp/              # Temporary working directory (gitignored)
+│   └── spec-kit/     # Reference: GitHub's Spec-Kit for inspiration
+└── .githooks/        # Pre-commit validation hooks
+```
+
+### Temporary Working Directory (`tmp/`)
+
+The `tmp/` directory serves as a workspace for:
+- Cloning reference repositories for analysis and inspiration
+- Prototyping plugin ideas before moving to `plugins/`
+- Experimenting with Claude Code features
+- Temporary file storage during development
+
+**Important:** `tmp/` is gitignored and never committed. It's your personal scratch space.
+
 ## Getting Started
 
 ### First Time Setup
