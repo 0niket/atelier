@@ -2762,15 +2762,14 @@ Ready to merge!
 11. `/harness:debug` - Investigate production issues
 12. `/harness:clarify` - Refine vague requirements
 
-**Agents (8 Specialized)**:
+**Agents (7 Specialized):**
 1. `specifier` - BDD specifications
 2. `domain-modeler` - DDD modeling
 3. `architect` - Architecture design
 4. `implementer` - TDD execution
 5. `refactoring-coach` - Systematic refactoring
 6. `qa-engineer` - Quality assurance (automated + HITL)
-7. `reviewer` - Coherence validation & PR creation
-8. `investigator` - Root cause analysis
+7. `investigator` - Root cause analysis
 
 **Skills (7 Auto-Invoked)**:
 1. `constitution-enforcer` - Apply rules
@@ -2801,12 +2800,13 @@ Ready to merge!
 3. `PostToolUse` - Run tests, detect smells, validate coherence
 4. `PreCommit` - Coherence gate (blocks if violations)
 
-**Templates (5 Shipped)**:
+**Templates (6 Shipped)**:
 1. `constitution.md` - Default methodology rules
 2. `claude-instructions.md` - CLAUDE.md additions
 3. `spec-template.md` - BDD specification format
 4. `plan-template.md` - DDD plan format
-5. `domain-model-template.md` - Domain design format
+5. `qa-report-template.md` - QA evidence format
+6. `domain-model-template.md` - Domain design format
 
 ---
 
